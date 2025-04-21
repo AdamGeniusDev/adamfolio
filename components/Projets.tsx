@@ -30,20 +30,16 @@ const handlePrevPage = () => {
 
 
 React.useEffect(() => {
-  const handleResize = () => {
-    if (window.innerWidth < 768) {
-      setProjectsPerPage(3); // 3 projets sur mobile
-    } else {
-      setProjectsPerPage(6); // 6 projets sur écran plus large
-    }
-  };
+  const filtered = activeTab === 'tout'
+    ? projects
+    : projects.filter(p => p.type.toLowerCase() === activeTab.toLowerCase());
 
-  handleResize(); // appel initial
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+  const newTotalPages = Math.ceil(filtered.length / projectsPerPage);
 
-
+  if (currentPage > newTotalPages) {
+    setCurrentPage(1);
+  }
+}, [activeTab, projectsPerPage, currentPage]);
 
   return (
    <section id='projets' className='w-full px-4 mt-10 flex justify-center items-center flex-col'>
