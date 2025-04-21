@@ -9,16 +9,16 @@ const Projets = () => {
   const [currentPage, setCurrentPage] = useState(1);
 const [projectsPerPage, setProjectsPerPage] = useState(6);
 
-
 const filteredProjects = activeTab === 'tout'
   ? projects
   : projects.filter(p => p.type.toLowerCase() === activeTab.toLowerCase());
 
+const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
 const indexOfLastProject = currentPage * projectsPerPage;
 const indexOfFirstProject = indexOfLastProject - projectsPerPage;
 const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
 
-const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
+
 
 const handleNextPage = () => {
   if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
@@ -30,16 +30,28 @@ const handlePrevPage = () => {
 
 
 React.useEffect(() => {
-  const filtered = activeTab === 'tout'
-    ? projects
-    : projects.filter(p => p.type.toLowerCase() === activeTab.toLowerCase());
+  const handleResize = () => {
+    if (window.innerWidth < 768) {
+      setProjectsPerPage(3); // mobile
+    } else {
+      setProjectsPerPage(6); // desktop
+    }
+  };
 
-  const newTotalPages = Math.ceil(filtered.length / projectsPerPage);
+  handleResize();
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
-  if (currentPage > newTotalPages) {
+React.useEffect(() => {
+  setCurrentPage(1);
+}, [activeTab]);
+
+React.useEffect(() => {
+  if (currentPage > totalPages) {
     setCurrentPage(1);
   }
-}, [activeTab, projectsPerPage, currentPage]);
+}, [projectsPerPage, filteredProjects.length]);
 
   return (
    <section id='projets' className='w-full px-4 mt-10 flex justify-center items-center flex-col'>
